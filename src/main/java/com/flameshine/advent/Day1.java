@@ -42,7 +42,7 @@ public class Day1 {
 
     public static void main(String... args) {
 
-        var fileUrl = Day1.class.getResource("day1/input.txt");
+        var fileUrl = Day1.class.getResource("day1/calibration_values.txt");
 
         Preconditions.checkState(fileUrl != null);
 
