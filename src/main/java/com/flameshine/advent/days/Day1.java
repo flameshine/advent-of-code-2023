@@ -1,13 +1,8 @@
-package com.flameshine.advent;
+package com.flameshine.advent.days;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 
-import com.google.common.base.Preconditions;
+import com.flameshine.advent.util.Utils;
 
 /**
  * Day 1: Trebuchet?!
@@ -42,19 +37,11 @@ public class Day1 {
 
     public static void main(String... args) {
 
-        var fileUrl = Day1.class.getResource("day1/calibration_values.txt");
+        var lines = Utils.readAllLines(Day1.class.getResource("day1/calibration_values.txt"));
 
-        Preconditions.checkState(fileUrl != null);
-
-        try (var lines = Files.lines(Path.of(fileUrl.getPath()), StandardCharsets.UTF_8)) {
-
-            System.out.println(
-                lines.map(Day1::extractCalibrationValues).mapToInt(Integer::intValue).sum()
-            );
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        System.out.println(
+            lines.stream().map(Day1::extractCalibrationValues).mapToInt(Integer::intValue).sum()
+        );
     }
 
     private static int extractCalibrationValues(String s) {
@@ -129,10 +116,6 @@ public class Day1 {
         var second = rightAlphabeticDigitIndex > rightNumericDigitIndex ? rightAlphabeticDigit : rightNumericDigit;
         var result = String.valueOf(first) + second;
 
-        try {
-            return Integer.parseInt(result);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("Unable to extract calibration values for string: " + s, e);
-        }
+        return Utils.parseInt(result);
     }
 }

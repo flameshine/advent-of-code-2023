@@ -1,15 +1,12 @@
-package com.flameshine.advent;
+package com.flameshine.advent.days;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
+
+import com.flameshine.advent.util.Utils;
 
 /**
  * Day 2: Cube Conundrum
@@ -78,17 +75,8 @@ public class Day2 {
 
     public static void main(String... args) {
 
-        var fileUrl = Day2.class.getResource("day2/games.txt");
-
-        Preconditions.checkState(fileUrl != null);
-
-        List<Game> games = new LinkedList<>();
-
-        try (var lines = Files.lines(Path.of(fileUrl.getPath()), StandardCharsets.UTF_8)) {
-            lines.map(Day2::parseGame).forEach(games::add);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        var lines = Utils.readAllLines(Day2.class.getResource("day2/games.txt"));
+        var games = lines.stream().map(Day2::parseGame).toList();
 
         // Part 1
 
@@ -106,8 +94,8 @@ public class Day2 {
     private static Game parseGame(String game) {
 
         var gameId = extractGameId(game);
-        var gameNumberIndex = game.indexOf(":");
-        var sets = game.substring(gameNumberIndex + 2).split("; ");
+        var gameIdSeparatorIndex = game.indexOf(":");
+        var sets = game.substring(gameIdSeparatorIndex + 2).split("; ");
 
         List<CubeConfiguration> configurations = new LinkedList<>();
 
@@ -130,18 +118,10 @@ public class Day2 {
     }
 
     private static int extractGameId(String game) {
-
         var matcher = GAME_ID_PATTERN.matcher(game);
-
         Preconditions.checkState(matcher.find());
-
         var groupIdAsString = matcher.group(0);
-
-        try {
-            return Integer.parseInt(groupIdAsString);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("Unable to extract game ID from string: " + game, e);
-        }
+        return Utils.parseInt(groupIdAsString);
     }
 
     private static CubeConfiguration buildCubeConfiguration(String cubeConfiguration) {
@@ -151,14 +131,7 @@ public class Day2 {
         Preconditions.checkState(matcher.find());
 
         var countAsString = matcher.group(1);
-
-        int count;
-        try {
-            count = Integer.parseInt(countAsString);
-        } catch (NumberFormatException e) {
-            throw new IllegalStateException("Unable to extract cube configuration from string: " + cubeConfiguration, e);
-        }
-
+        var count = Utils.parseInt(countAsString);
         var color = matcher.group(2);
         var colorConfiguration = ColorConfiguration.valueOf(color.toUpperCase());
 

@@ -1,12 +1,6 @@
-package com.flameshine.advent;
+package com.flameshine.advent.days;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import com.google.common.base.Preconditions;
+import com.flameshine.advent.util.Utils;
 
 /**
  * Day 3: Gear Ratios
@@ -27,6 +21,7 @@ import com.google.common.base.Preconditions;
  * There are lots of numbers and symbols you don't really understand, but apparently any number adjacent to a symbol, even diagonally, is a "part number" and should be included in your sum.
  * (Periods (.) do not count as a symbol.)
  * Here is an example engine schematic:
+ *
  * 467..114..
  * ...*......
  * ..35..633.
@@ -37,12 +32,45 @@ import com.google.common.base.Preconditions;
  * ......755.
  * ...$.*....
  * .664.598..
+ *
  * In this schematic, two numbers are not part numbers because they arev c not adjacent to a symbol: 114 (top right) and 58 (middle right).
  * Every other number is adjacent to a symbol and so is a part number; their sum is 4361.
  * Of course, the actual engine schematic is much larger.
  * What is the sum of all of the part numbers in the engine schematic?
  *
- * Part 2: to do
+ * Part 2:
+ *
+ * The engineer finds the missing part and installs it in the engine! As the engine springs to life, you jump in the closest gondola, finally ready to ascend to the water source.
+ * You don't seem to be going very fast, though.
+ * Maybe something is still wrong?
+ * Fortunately, the gondola has a phone labeled "help", so you pick it up and the engineer answers.
+ * Before you can explain the situation, she suggests that you look out the window.
+ * There stands the engineer, holding a phone in one hand and waving with the other.
+ * You're going so slowly that you haven't even left the station.
+ * You exit the gondola.
+ * The missing part wasn't the only issue - one of the gears in the engine is wrong.
+ * A gear is any * symbol that is adjacent to exactly two part numbers.
+ * Its gear ratio is the result of multiplying those two numbers together.
+ * This time, you need to find the gear ratio of every gear and add them all up so that the engineer can figure out which gear needs to be replaced.
+ * Consider the same engine schematic again:
+ *
+ * 467..114..
+ * ...*......
+ * ..35..633.
+ * ......#...
+ * 617*......
+ * .....+.58.
+ * ..592.....
+ * ......755.
+ * ...$.*....
+ * .664.598..
+ *
+ * In this schematic, there are two gears.
+ * The first is in the top left; it has part numbers 467 and 35, so its gear ratio is 16345.
+ * The second gear is in the lower right; its gear ratio is 451490.
+ * (The * adjacent to 617 is not a gear because it is only adjacent to one part number.)
+ * Adding up all of the gear ratios produces 467835.
+ * What is the sum of all of the gear ratios in your engine schematic?
  */
 public class Day3 {
 
@@ -53,18 +81,10 @@ public class Day3 {
 
     static {
 
-        var fileUrl = Day3.class.getResource("day3/schematic.txt");
+        var lines = Utils.readAllLines(Day3.class.getResource("day3/schematic.txt"));
 
-        Preconditions.checkState(fileUrl != null);
-
-        try (var lines = Files.lines(Path.of(fileUrl.getPath()), StandardCharsets.UTF_8)) {
-
-            SCHEMATIC = lines.map(String::toCharArray)
-                .toArray(char[][]::new);
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        SCHEMATIC = lines.stream().map(String::toCharArray)
+            .toArray(char[][]::new);
     }
 
     public static void main(String... args) {
@@ -73,6 +93,8 @@ public class Day3 {
 
         rows = SCHEMATIC.length;
         columns = SCHEMATIC[0].length;
+
+        // Part 1
 
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
@@ -88,12 +110,7 @@ public class Day3 {
                     continue;
                 }
 
-                int number;
-                try {
-                    number = Integer.parseInt(numberBuilder.toString());
-                } catch (NumberFormatException e) {
-                    throw new IllegalStateException("Unable to parse schematic element", e);
-                }
+                var number = Utils.parseInt(numberBuilder.toString());
 
                 if (hasAdjacentSymbol(i, numberStartIndex, j)) {
                     sum += number;
@@ -102,6 +119,8 @@ public class Day3 {
         }
 
         System.out.println(sum);
+
+        // TODO: Part 2
     }
 
     private static boolean hasAdjacentSymbol(int row, int numberStartIndex, int numberEndIndex) {
@@ -112,7 +131,7 @@ public class Day3 {
             for (var direction : new int[][] {{ -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }}) {
                 var x = row + direction[0];
                 var y = i + direction[1];
-                if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbol(SCHEMATIC[x][y])) {
+                if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbolExcludingDot(SCHEMATIC[x][y])) {
                     return true;
                 }
             }
@@ -122,7 +141,7 @@ public class Day3 {
             for (var direction : new int[][] {{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }}) {
                 var x = row + direction[0];
                 var y = i + direction[1];
-                if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbol(SCHEMATIC[x][y])) {
+                if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbolExcludingDot(SCHEMATIC[x][y])) {
                     return true;
                 }
             }
@@ -131,7 +150,7 @@ public class Day3 {
         return false;
     }
 
-    private static boolean isSymbol(char c) {
+    private static boolean isSymbolExcludingDot(char c) {
         return !Character.isLetterOrDigit(c) && c != '.';
     }
 }
