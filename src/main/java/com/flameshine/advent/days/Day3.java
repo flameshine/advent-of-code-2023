@@ -1,5 +1,9 @@
 package com.flameshine.advent.days;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 import com.flameshine.advent.util.Utils;
 
 /**
@@ -33,7 +37,7 @@ import com.flameshine.advent.util.Utils;
  * ...$.*....
  * .664.598..
  *
- * In this schematic, two numbers are not part numbers because they arev c not adjacent to a symbol: 114 (top right) and 58 (middle right).
+ * In this schematic, two numbers are not part numbers because they are not adjacent to a symbol: 114 (top right) and 58 (middle right).
  * Every other number is adjacent to a symbol and so is a part number; their sum is 4361.
  * Of course, the actual engine schematic is much larger.
  * What is the sum of all of the part numbers in the engine schematic?
@@ -80,21 +84,55 @@ public class Day3 {
     private static int columns;
 
     static {
-
         var lines = Utils.readAllLines(Day3.class.getResource("day3/schematic.txt"));
-
         SCHEMATIC = lines.stream().map(String::toCharArray)
             .toArray(char[][]::new);
     }
 
     public static void main(String... args) {
 
-        var sum = 0;
-
         rows = SCHEMATIC.length;
         columns = SCHEMATIC[0].length;
 
+        var schematicNumbers = extractSchematicNumbers();
+
         // Part 1
+
+        var partNumberSum = 0;
+
+        for (var number : schematicNumbers) {
+            if (hasAdjacentSymbol(number)) {
+                partNumberSum += number.value();
+            }
+        }
+
+        System.out.println(partNumberSum);
+
+        // Part 2
+
+        var gearRatioSum = 0;
+
+        for (var i = 0; i < rows; i++) {
+            for (var j = 0; j < columns; j++) {
+                if (SCHEMATIC[i][j] == '*') {
+                    var adjacentNumbers = getAdjacent(i, j, schematicNumbers);
+                    if (adjacentNumbers.size() == 2) {
+                        var gearRatio = adjacentNumbers.stream()
+                            .map(SchematicNumber::value)
+                            .reduce((a, b) -> a * b)
+                            .orElse(0);
+                        gearRatioSum += gearRatio;
+                    }
+                }
+            }
+        }
+
+        System.out.println(gearRatioSum);
+    }
+
+    private static List<SchematicNumber> extractSchematicNumbers() {
+
+        List<SchematicNumber> resultBuilder = new LinkedList<>();
 
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
@@ -112,34 +150,31 @@ public class Day3 {
 
                 var number = Utils.parseInt(numberBuilder.toString());
 
-                if (hasAdjacentSymbol(i, numberStartIndex, j)) {
-                    sum += number;
-                }
+                resultBuilder.add(
+                    new SchematicNumber(numberStartIndex, j, i, number)
+                );
             }
         }
 
-        System.out.println(sum);
-
-        // TODO: Part 2
+        return Collections.unmodifiableList(resultBuilder);
     }
 
-    private static boolean hasAdjacentSymbol(int row, int numberStartIndex, int numberEndIndex) {
-        for (var i = numberStartIndex; i < numberEndIndex; i++) {
+    private static boolean hasAdjacentSymbol(SchematicNumber schematicNumber) {
 
-            // check horizontally
+        var schematicNumberRow = schematicNumber.row();
+
+        for (var i = schematicNumber.columnRangeStart(); i < schematicNumber.columnRangeEnd(); i++) {
 
             for (var direction : new int[][] {{ -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }}) {
-                var x = row + direction[0];
+                var x = schematicNumberRow + direction[0];
                 var y = i + direction[1];
                 if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbolExcludingDot(SCHEMATIC[x][y])) {
                     return true;
                 }
             }
 
-            // check diagonally
-
             for (var direction : new int[][] {{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }}) {
-                var x = row + direction[0];
+                var x = schematicNumberRow + direction[0];
                 var y = i + direction[1];
                 if (x >= 0 && x < rows && y >= 0 && y < columns && isSymbolExcludingDot(SCHEMATIC[x][y])) {
                     return true;
@@ -152,5 +187,51 @@ public class Day3 {
 
     private static boolean isSymbolExcludingDot(char c) {
         return !Character.isLetterOrDigit(c) && c != '.';
+    }
+
+    private static List<SchematicNumber> getAdjacent(int row, int column, List<SchematicNumber> schematicNumbers) {
+
+        List<SchematicNumber> resultBuilder = new LinkedList<>();
+
+        for (var number : schematicNumbers) {
+
+            SchematicNumber gearPart = null;
+
+            for (var direction : new int[][] {{ -1, 0 }, { 1, 0 }, { 0, -1 }, { 0, 1 }}) {
+                var x = row + direction[0];
+                var y = column + direction[1];
+                if (x >= 0 && x < rows && y >= 0 && y < columns && number.contains(x, y)) {
+                    gearPart = number;
+                    break;
+                }
+            }
+
+            if (gearPart != null) {
+                resultBuilder.add(gearPart);
+                continue;
+            }
+
+            for (var direction : new int[][] {{ -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 }}) {
+                var x = row + direction[0];
+                var y = column + direction[1];
+                if (x >= 0 && x < rows && y >= 0 && y < columns && number.contains(x, y)) {
+                    resultBuilder.add(number);
+                    break;
+                }
+            }
+        }
+
+        return Collections.unmodifiableList(resultBuilder);
+    }
+
+    private record SchematicNumber(
+        int columnRangeStart,
+        int columnRangeEnd,
+        int row,
+        int value
+    ) {
+        boolean contains(int rowIndex, int columnIndex) {
+            return rowIndex == row && columnIndex >= columnRangeStart && columnIndex < columnRangeEnd;
+        }
     }
 }
