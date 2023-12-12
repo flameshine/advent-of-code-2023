@@ -3,14 +3,19 @@ package com.flameshine.advent.days;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UncheckedIOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
-import com.flameshine.advent.util.Utils;
+import com.flameshine.advent.util.ParsingUtils;
 
 /**
  * Day 5: If You Give A Seed A Fertilizer
@@ -18,15 +23,13 @@ import com.flameshine.advent.util.Utils;
  * Part 1:
  *
  * You take the boat and find the gardener right where you were told he would be: managing a giant "garden" that looks more to you like a farm.
- * "A water source? Island Island is the water source!" You point out that Snow Island isn't receiving any water.
- * "Oh, we had to stop the water because we ran out of sand to filter it with!
- * Can't make snow with dirty water.
- * Don't worry, I'm sure we'll get more sand soon; we only turned off the water a few days... weeks... oh no." His face sinks into a look of horrified realization.
- * "I've been so busy making sure everyone here has food that I completely forgot to check why we stopped getting more sand!
- * There's a ferry leaving soon that is headed over in that direction - it's much faster than your boat.
- * Could you please go check it out?" You barely have time to agree to this request when he brings up another.
- * "While you wait for the ferry, maybe you can help us with our food production problem.
- * The latest Island Island Almanac just arrived and we're having trouble making sense of it."
+ * "A water source? Island Island is the water source!"
+ * You point out that Snow Island isn't receiving any water.
+ * "Oh, we had to stop the water because we ran out of sand to filter it with! Can't make snow with dirty water. Don't worry, I'm sure we'll get more sand soon; we only turned off the water a few days... weeks... oh no."
+ * His face sinks into a look of horrified realization.
+ * "I've been so busy making sure everyone here has food that I completely forgot to check why we stopped getting more sand! There's a ferry leaving soon that is headed over in that direction - it's much faster than your boat. Could you please go check it out?"
+ * You barely have time to agree to this request when he brings up another.
+ * "While you wait for the ferry, maybe you can help us with our food production problem. The latest Island Island Almanac just arrived and we're having trouble making sense of it."
  * The almanac (your puzzle input) lists all of the seeds that need to be planted.
  * It also lists what type of soil to use with each kind of seed, what type of fertilizer to use with each kind of soil, what type of water to use with each kind of fertilizer, and so on.
  * Every type of seed, soil, fertilizer and so on is identified with a number, but numbers are reused by each category - that is, soil 123 and fertilizer 123 aren't necessarily related to each other.
@@ -120,6 +123,23 @@ import com.flameshine.advent.util.Utils;
  *
  * So, the lowest location number in this example is 35.
  * What is the lowest location number that corresponds to any of the initial seed numbers?
+ *
+ * Part 2:
+ *
+ * Everyone will starve if you only plant such a small number of seeds.
+ * Re-reading the almanac, it looks like the seeds: line actually describes ranges of seed numbers.
+ * The values on the initial seeds: line come in pairs.
+ * Within each pair, the first value is the start of the range and the second value is the length of the range.
+ * So, in the first line of the example above:
+ * seeds: 79 14 55 13
+ * This line describes two ranges of seed numbers to be planted in the garden.
+ * The first range starts with seed number 79 and contains 14 values: 79, 80, ..., 91, 92.
+ * The second range starts with seed number 55 and contains 13 values: 55, 56, ..., 66, 67.
+ * Now, rather than considering four seed numbers, you need to consider a total of 27 seed numbers.
+ * In the above example, the lowest location number can be obtained from seed number 82, which corresponds to soil 84, fertilizer 84, water 84, light 77, temperature 45, humidity 46, and location 46.
+ * So, the lowest location number is 46.
+ * Consider all of the initial seed numbers listed in the ranges on the first line of the almanac.
+ * What is the lowest location number that corresponds to any of the initial seed numbers?
  */
 public class Day5 {
 
@@ -133,19 +153,23 @@ public class Day5 {
         new MappingDescriptor(Category.HUMIDITY, Category.LOCATION)
     );
 
-    public static void main(String... args) {
+    public static void main(String... args) throws ExecutionException, InterruptedException {
 
-        List<Long> seeds = new LinkedList<>();
-        List<AlmanacEntry> entries = new LinkedList<>();
+        List<Long> seeds = new ArrayList<>();
+        Map<Long, Long> seedRanges = new HashMap<>();
+        List<AlmanacEntry> entries = new ArrayList<>();
 
         try (var scanner = new Scanner(new File(Objects.requireNonNull(Day5.class.getResource("day5/almanac.txt")).getPath()))) {
 
             if (scanner.hasNextLine()) {
                 var seedsLine = scanner.nextLine();
                 var seedsAsString = seedsLine.split(" ");
-                for (var i = 1; i < seedsAsString.length; i++) {
-                    var seed = Utils.parseLong(seedsAsString[i]);
-                    seeds.add(seed);
+                for (var i = 1; i < seedsAsString.length; i += 2) {
+                    var firstSeedItem = ParsingUtils.parseLong(seedsAsString[i]);
+                    var secondSeedItem = ParsingUtils.parseLong(seedsAsString[i + 1]);
+                    seeds.add(firstSeedItem);
+                    seeds.add(secondSeedItem);
+                    seedRanges.put(firstSeedItem, firstSeedItem + secondSeedItem);
                 }
             }
 
@@ -168,6 +192,19 @@ public class Day5 {
 
         // Part 1
 
+        System.out.println(
+            findMinimumLocationForListedSeeds(seeds, entries)
+        );
+
+        // Part 2
+
+        System.out.println(
+            findMinimumLocationForSeedRanges(seedRanges, entries)
+        );
+    }
+
+    private static Long findMinimumLocationForListedSeeds(List<Long> seeds, List<AlmanacEntry> entries) {
+
         var min = Long.MAX_VALUE;
 
         for (var seed : seeds) {
@@ -182,14 +219,52 @@ public class Day5 {
             min = Math.min(min, seed);
         }
 
-        System.out.println(min);
+        return min;
+    }
+
+    private static Long findMinimumLocationForSeedRanges(Map<Long, Long> seedRanges, List<AlmanacEntry> entries) throws ExecutionException, InterruptedException {
+
+        List<Future<Long>> futures = new ArrayList<>();
+
+        try (var executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+
+            for (var seedRange : seedRanges.entrySet()) {
+
+                var future = executorService.submit(() -> {
+                    var location = Long.MAX_VALUE;
+                    for (var i = seedRange.getKey(); i < seedRange.getValue(); i++) {
+                        Set<MappingDescriptor> processed = new HashSet<>();
+                        var seed = i;
+                        for (var entry : entries) {
+                            var descriptor = entry.mappingDescriptor();
+                            if (!processed.contains(descriptor) && entry.contains(seed)) {
+                                seed = entry.map(seed);
+                                processed.add(descriptor);
+                            }
+                        }
+                        location = Math.min(location, seed);
+                    }
+                    return location;
+                });
+
+                futures.add(future);
+            }
+        }
+
+        var min = Long.MAX_VALUE;
+
+        for (var future : futures) {
+            min = Math.min(min, future.get());
+        }
+
+        return min;
     }
 
     private static AlmanacEntry buildEntry(MappingDescriptor mappingDescriptor, String line) {
         var values = line.split(" ");
-        var destinationRangeStart = Utils.parseLong(values[0]);
-        var sourceRangeStart = Utils.parseLong(values[1]);
-        var rangeLength = Utils.parseLong(values[2]);
+        var destinationRangeStart = ParsingUtils.parseLong(values[0]);
+        var sourceRangeStart = ParsingUtils.parseLong(values[1]);
+        var rangeLength = ParsingUtils.parseLong(values[2]);
         return new AlmanacEntry(
             mappingDescriptor,
             destinationRangeStart,

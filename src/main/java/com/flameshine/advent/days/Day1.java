@@ -2,7 +2,8 @@ package com.flameshine.advent.days;
 
 import java.util.Map;
 
-import com.flameshine.advent.util.Utils;
+import com.flameshine.advent.util.IOUtils;
+import com.flameshine.advent.util.ParsingUtils;
 
 /**
  * Day 1: Trebuchet?!
@@ -37,14 +38,61 @@ public class Day1 {
 
     public static void main(String... args) {
 
-        var lines = Utils.readAllLines(Day1.class.getResource("day1/calibration_values.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day1.class.getResource("day1/calibration_values.txt"));
+
+        // Part 1
 
         System.out.println(
-            lines.stream().map(Day1::extractCalibrationValues).mapToInt(Integer::intValue).sum()
+            lines.stream().map(Day1::extractCalibrationValuesWithNumericDigitsOnly).mapToInt(Integer::intValue).sum()
+        );
+
+        // Part 2
+
+        System.out.println(
+            lines.stream().map(Day1::extractCalibrationValuesWithAlphabeticDigits).mapToInt(Integer::intValue).sum()
         );
     }
 
-    private static int extractCalibrationValues(String s) {
+    private static int extractCalibrationValuesWithNumericDigitsOnly(String s) {
+
+        var leftNumericDigit = Integer.MAX_VALUE;
+        var leftNumericDigitIndex = Integer.MAX_VALUE;
+
+        for (var entry : DIGITS.entrySet()) {
+            var value = entry.getValue();
+            var index = s.indexOf(String.valueOf(value));
+            if (index != -1 && leftNumericDigitIndex > index) {
+                leftNumericDigit = value;
+                leftNumericDigitIndex = index;
+            }
+        }
+
+        var rightNumericDigit = Integer.MAX_VALUE;
+        var rightNumericDigitIndex = Integer.MIN_VALUE;
+
+        for (var entry : DIGITS.entrySet()) {
+            var value = entry.getValue();
+            var index = s.lastIndexOf(String.valueOf(value));
+            if (index != -1 && leftNumericDigitIndex < index && rightNumericDigitIndex < index) {
+                rightNumericDigit = value;
+                rightNumericDigitIndex = index;
+            }
+        }
+
+        if (rightNumericDigit == Integer.MAX_VALUE) {
+            if (leftNumericDigit == Integer.MAX_VALUE) {
+                rightNumericDigit = Integer.MIN_VALUE;
+            } else {
+                rightNumericDigit = leftNumericDigit;
+            }
+        }
+
+        var result = String.valueOf(leftNumericDigit) + rightNumericDigit;
+
+        return ParsingUtils.parseInt(result);
+    }
+
+    private static int extractCalibrationValuesWithAlphabeticDigits(String s) {
 
         var leftAlphabeticDigit = Integer.MAX_VALUE;
         var leftAlphabeticDigitIndex = Integer.MAX_VALUE;
@@ -116,6 +164,6 @@ public class Day1 {
         var second = rightAlphabeticDigitIndex > rightNumericDigitIndex ? rightAlphabeticDigit : rightNumericDigit;
         var result = String.valueOf(first) + second;
 
-        return Utils.parseInt(result);
+        return ParsingUtils.parseInt(result);
     }
 }

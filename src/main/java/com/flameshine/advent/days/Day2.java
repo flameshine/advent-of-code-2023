@@ -1,12 +1,13 @@
 package com.flameshine.advent.days;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Preconditions;
 
-import com.flameshine.advent.util.Utils;
+import com.flameshine.advent.util.IOUtils;
+import com.flameshine.advent.util.ParsingUtils;
 
 /**
  * Day 2: Cube Conundrum
@@ -28,11 +29,13 @@ import com.flameshine.advent.util.Utils;
  * You play several games and record the information from each game (your puzzle input).
  * Each game is listed with its ID number (like the 11 in Game 11: ...) followed by a semicolon-separated list of subsets of cubes that were revealed from the bag (like 3 red, 5 green, 4 blue).
  * For example, the record of a few games might look like this:
+ *
  *   - Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
  *   - Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
  *   - Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
  *   - Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
  *   - Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+ *
  * In game 1, three sets of cubes are revealed from the bag (and then put back again).
  * The first set is 3 blue cubes and 4 red cubes; the second set is 1 red cube, 2 green cubes, and 6 blue cubes; the third set is only 2 green cubes.
  * The Elf would first like to know which games would have been possible if the bag contained only 12 red cubes, 13 green cubes, and 14 blue cubes?
@@ -49,18 +52,21 @@ import com.flameshine.advent.util.Utils;
  * It's just up ahead!
  * As you continue your walk, the Elf poses a second question: in each game you played, what is the fewest number of cubes of each color that could have been in the bag to make the game possible?
  * Again consider the example games from earlier:
- *   - Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
- *   - Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
- *   - Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
- *   - Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
- *   - Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+ *
+ * - Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+ * - Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+ * - Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+ * - Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+ * - Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
+ *
  * Explanations:
- *   - In game 1, the game could have been played with as few as 4 red, 2 green, and 6 blue cubes.
- *   If any color had even one fewer cube, the game would have been impossible.
- *   - Game 2 could have been played with a minimum of 1 red, 3 green, and 4 blue cubes.
- *   - Game 3 must have been played with at least 20 red, 13 green, and 6 blue cubes.
- *   - Game 4 required at least 14 red, 3 green, and 15 blue cubes.
- *   - Game 5 needed no fewer than 6 red, 3 green, and 2 blue cubes in the bag.
+ *
+ * - In game 1, the game could have been played with as few as 4 red, 2 green, and 6 blue cubes. If any color had even one fewer cube, the game would have been impossible.
+ * - Game 2 could have been played with a minimum of 1 red, 3 green, and 4 blue cubes.
+ * - Game 3 must have been played with at least 20 red, 13 green, and 6 blue cubes.
+ * - Game 4 required at least 14 red, 3 green, and 15 blue cubes.
+ * - Game 5 needed no fewer than 6 red, 3 green, and 2 blue cubes in the bag.
+ *
  * The power of a set of cubes is equal to the numbers of red, green, and blue cubes multiplied together.
  * The power of the minimum set of cubes in game 1 is 48.
  * In games 2-5 it was 12, 1560, 630, and 36, respectively.
@@ -75,7 +81,7 @@ public class Day2 {
 
     public static void main(String... args) {
 
-        var lines = Utils.readAllLines(Day2.class.getResource("day2/games.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day2.class.getResource("day2/games.txt"));
         var games = lines.stream().map(Day2::parseGame).toList();
 
         // Part 1
@@ -97,7 +103,7 @@ public class Day2 {
         var gameIdSeparatorIndex = game.indexOf(":");
         var sets = game.substring(gameIdSeparatorIndex + 2).split("; ");
 
-        List<CubeConfiguration> configurations = new LinkedList<>();
+        List<CubeConfiguration> configurations = new ArrayList<>();
 
         for (var set : sets) {
             var configurationStrings = set.split(", ");
@@ -121,7 +127,7 @@ public class Day2 {
         var matcher = GAME_ID_PATTERN.matcher(game);
         Preconditions.checkState(matcher.find());
         var groupIdAsString = matcher.group(0);
-        return Utils.parseInt(groupIdAsString);
+        return ParsingUtils.parseInt(groupIdAsString);
     }
 
     private static CubeConfiguration buildCubeConfiguration(String cubeConfiguration) {
@@ -131,7 +137,7 @@ public class Day2 {
         Preconditions.checkState(matcher.find());
 
         var countAsString = matcher.group(1);
-        var count = Utils.parseInt(countAsString);
+        var count = ParsingUtils.parseInt(countAsString);
         var color = matcher.group(2);
         var colorConfiguration = ColorConfiguration.valueOf(color.toUpperCase());
 
@@ -146,19 +152,13 @@ public class Day2 {
             .orElse(1);
     }
 
-    private record Game(
-        int id,
-        List<CubeConfiguration> configurations
-    ) {
+    private record Game(int id, List<CubeConfiguration> configurations) {
         public boolean isPossible() {
             return configurations.stream().allMatch(c -> c.count() <= c.colorConfiguration().limit());
         }
     }
 
-    private record CubeConfiguration(
-        int count,
-        ColorConfiguration colorConfiguration
-    ) {}
+    private record CubeConfiguration(int count, ColorConfiguration colorConfiguration) {}
 
     private enum ColorConfiguration {
 

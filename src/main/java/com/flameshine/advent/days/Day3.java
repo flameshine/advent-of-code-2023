@@ -1,10 +1,11 @@
 package com.flameshine.advent.days;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
-import com.flameshine.advent.util.Utils;
+import com.flameshine.advent.util.IOUtils;
+import com.flameshine.advent.util.ParsingUtils;
 
 /**
  * Day 3: Gear Ratios
@@ -14,9 +15,10 @@ import com.flameshine.advent.util.Utils;
  * You and the Elf eventually reach a gondola lift station; he says the gondola lift will take you up to the water source, but this is as far as he can bring you.
  * You go inside.
  * It doesn't take long to find the gondolas, but there seems to be a problem: they're not moving.
- * "Aaah!" You turn around to see a slightly-greasy Elf with a wrench and a look of surprise.
- * "Sorry, I wasn't expecting anyone!
- * The gondola lift isn't working right now; it'll still be a while before I can fix it." You offer to help.
+ * "Aaah!"
+ * You turn around to see a slightly-greasy Elf with a wrench and a look of surprise.
+ * "Sorry, I wasn't expecting anyone! The gondola lift isn't working right now; it'll still be a while before I can fix it."
+ * You offer to help.
  * The engineer explains that an engine part seems to be missing from the engine, but nobody can figure out which one.
  * If you can add up all the part numbers in the engine schematic, it should be easy to work out which part is missing.
  * The engine schematic (your puzzle input) consists of a visual representation of the engine.
@@ -82,7 +84,7 @@ public class Day3 {
     private static int columns;
 
     static {
-        var lines = Utils.readAllLines(Day3.class.getResource("day3/schematic.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day3.class.getResource("day3/schematic.txt"));
         SCHEMATIC = lines.stream().map(String::toCharArray)
             .toArray(char[][]::new);
     }
@@ -130,7 +132,7 @@ public class Day3 {
 
     private static List<SchematicNumber> extractSchematicNumbers() {
 
-        List<SchematicNumber> resultBuilder = new LinkedList<>();
+        List<SchematicNumber> resultBuilder = new ArrayList<>();
 
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < columns; j++) {
@@ -146,7 +148,7 @@ public class Day3 {
                     continue;
                 }
 
-                var number = Utils.parseInt(numberBuilder.toString());
+                var number = ParsingUtils.parseInt(numberBuilder.toString());
 
                 resultBuilder.add(
                     new SchematicNumber(numberStartIndex, j, i, number)
@@ -189,7 +191,7 @@ public class Day3 {
 
     private static List<SchematicNumber> getAdjacent(int row, int column, List<SchematicNumber> schematicNumbers) {
 
-        List<SchematicNumber> resultBuilder = new LinkedList<>();
+        List<SchematicNumber> resultBuilder = new ArrayList<>();
 
         for (var number : schematicNumbers) {
 
