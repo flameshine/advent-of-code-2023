@@ -68,15 +68,37 @@ import com.flameshine.advent.util.StringUtils;
  * To see how much margin of error you have, determine the number of ways you can beat the record in each race; in this example, if you multiply these values together, you get 288 (4 * 8 * 9).
  * Determine the number of ways you could beat the record in each race.
  * What do you get if you multiply these numbers together?
+ *
+ * Part 2:
+ *
+ * As the race is about to start, you realize the piece of paper with race times and record distances you got earlier actually just has very bad kerning.
+ * There's really only one race - ignore the spaces between the numbers on each line.
+ *
+ * So, the example from before:
+ *
+ * Time:      7  15   30
+ * Distance:  9  40  200
+ *
+ * ...now instead means this:
+ *
+ * Time:      71530
+ * Distance:  940200
+ *
+ * Now, you have to figure out how many ways there are to win this single race.
+ * In this example, the race lasts for 71530 milliseconds and the record distance you need to beat is 940200 millimeters.
+ * You could hold the button anywhere from 14 to 71516 milliseconds and beat the record, a total of 71503 ways!
+ *
+ * How many ways can you beat the record in this one much longer race?
  */
 public class Day6 {
 
     public static void main(String... args) {
 
-        var races = buildRaces();
+        var lines = IOUtils.readAllLinesFrom(Day6.class.getResource("day6/races.txt"));
 
         // Part 1
 
+        var races = buildSeparatedRaces(lines);
         var productOfWinningRaceConfigurationCounts = 1;
 
         for (var race : races) {
@@ -85,21 +107,26 @@ public class Day6 {
         }
 
         System.out.println(productOfWinningRaceConfigurationCounts);
+
+        // Part 2
+
+        var race = buildSingleRace(lines);
+
+        System.out.println(
+            getWinningConfigurationCount(race)
+        );
     }
 
-    private static List<Race> buildRaces() {
+    private static List<Race> buildSeparatedRaces(List<String> lines) {
 
         List<Integer> times = new ArrayList<>();
-        List<Integer> distances = new ArrayList<>();
-
-        var lines = IOUtils.readAllLinesFrom(Day6.class.getResource("day6/races.txt"));
-
         var timeValues = StringUtils.removeTrailingWhitespaces(lines.get(0)).split("\\s");
         for (var i = 1; i < timeValues.length; i++) {
             var parsed = ParsingUtils.parseInt(timeValues[i]);
             times.add(parsed);
         }
 
+        List<Integer> distances = new ArrayList<>();
         var distanceValues = StringUtils.removeTrailingWhitespaces(lines.get(1)).split("\\s");
         for (var i = 1; i < distanceValues.length; i++) {
             var parsed = ParsingUtils.parseInt(distanceValues[i]);
@@ -116,7 +143,27 @@ public class Day6 {
         return Collections.unmodifiableList(resultBuilder);
     }
 
-    private static int getWinningConfigurationCount(Race race) {
+    private static Race buildSingleRace(List<String> lines) {
+
+        var timeBuilder = new StringBuilder();
+        var timeValues = StringUtils.removeTrailingWhitespaces(lines.get(0)).split("\\s");
+        for (var i = 1; i < timeValues.length; i++) {
+            timeBuilder.append(timeValues[i]);
+        }
+
+        var distanceBuilder = new StringBuilder();
+        var distanceValues = StringUtils.removeTrailingWhitespaces(lines.get(1)).split("\\s");
+        for (var i = 1; i < distanceValues.length; i++) {
+            distanceBuilder.append(distanceValues[i]);
+        }
+
+        var time = ParsingUtils.parseLong(timeBuilder.toString());
+        var distance = ParsingUtils.parseLong(distanceBuilder.toString());
+
+        return new Race(time, distance);
+    }
+
+    private static long getWinningConfigurationCount(Race race) {
 
         var result = 0;
         var time = race.time();
@@ -132,7 +179,7 @@ public class Day6 {
     }
 
     private record Race(
-        int time,
-        int distance
+        long time,
+        long distance
     ) { }
 }
