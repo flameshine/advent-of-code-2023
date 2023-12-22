@@ -100,8 +100,8 @@ import com.flameshine.advent.util.ParsingUtils;
  * - KK677 is now the only two pair, making it the second-weakest hand.
  * - T55J5, KTJJT, and QQQJA are now all four of a kind! T55J5 gets rank 3, QQQJA gets rank 4, and KTJJT gets rank 5.
  * With the new joker rule, the total winnings in this example are 5905.
- *
- * Using the new joker rule, find the rank of every hand in your set. What are the new total winnings?
+ * Using the new joker rule, find the rank of every hand in your set.
+ * What are the new total winnings?
  */
 public class Day7 {
 
