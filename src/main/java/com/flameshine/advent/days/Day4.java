@@ -106,14 +106,9 @@ public class Day4 {
 
         // Part 1
 
-        var sum = 0;
-
-        for (var card : cards) {
-            var matching = getMatchingNumbersCount(card);
-            sum += calculatePoints(matching);
-        }
-
-        System.out.println(sum);
+        System.out.println(
+            calculateTotalPoints(cards)
+        );
 
         // Part 2
 
@@ -156,6 +151,18 @@ public class Day4 {
         return Collections.unmodifiableList(resultBuilder);
     }
 
+    private static int calculateTotalPoints(List<Card> cards) {
+
+        var result = 0;
+
+        for (var card : cards) {
+            var matching = getMatchingNumbersCount(card);
+            result += calculatePoints(matching);
+        }
+
+        return result;
+    }
+
     private static int calculatePoints(int matching) {
         return switch (matching) {
             case 0 -> 0;
@@ -173,7 +180,7 @@ public class Day4 {
     private static int calculateTotalNumberOfCards(List<Card> cards) {
 
         var cardMap = cards.stream()
-            .collect(Collectors.toMap(Card::id, Function.identity()));
+            .collect(Collectors.toUnmodifiableMap(Card::id, Function.identity()));
 
         Map<Integer, Integer> accumulativeCounter = new HashMap<>();
 

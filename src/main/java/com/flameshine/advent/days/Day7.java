@@ -99,6 +99,7 @@ import com.flameshine.advent.util.ParsingUtils;
  * - 32T3K is still the only one pair; it doesn't contain any jokers, so its strength doesn't increase.
  * - KK677 is now the only two pair, making it the second-weakest hand.
  * - T55J5, KTJJT, and QQQJA are now all four of a kind! T55J5 gets rank 3, QQQJA gets rank 4, and KTJJT gets rank 5.
+ *
  * With the new joker rule, the total winnings in this example are 5905.
  * Using the new joker rule, find the rank of every hand in your set.
  * What are the new total winnings?
