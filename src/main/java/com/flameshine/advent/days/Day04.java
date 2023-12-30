@@ -95,14 +95,14 @@ import com.flameshine.advent.util.ParsingUtils;
  * Process all of the original and copied scratchcards until no more scratchcards are won.
  * Including the original set of scratchcards, how many total scratchcards do you end up with?
  */
-public class Day4 {
+public class Day04 {
 
     private static final Pattern CARD_ID_PATTERN = Pattern.compile("\\d+");
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day4.class.getResource("day4/cards.txt"));
-        var cards = lines.stream().map(Day4::parseCard).toList();
+        var lines = IOUtils.readAllLinesFrom(Day04.class.getResource("day04/cards.txt"));
+        var cards = lines.stream().map(Day04::parseCard).toList();
 
         // Part 1
 

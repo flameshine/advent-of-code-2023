@@ -104,11 +104,11 @@ import com.flameshine.advent.util.ParsingUtils;
  * Using the new joker rule, find the rank of every hand in your set.
  * What are the new total winnings?
  */
-public class Day7 {
+public class Day07 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day7.class.getResource("day7/hands.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day07.class.getResource("day07/hands.txt"));
 
         // Part 1
 

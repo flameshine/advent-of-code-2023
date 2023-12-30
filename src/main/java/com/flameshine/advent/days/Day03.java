@@ -76,7 +76,7 @@ import com.flameshine.advent.util.ParsingUtils;
  * Adding up all of the gear ratios produces 467835.
  * What is the sum of all of the gear ratios in your engine schematic?
  */
-public class Day3 {
+public class Day03 {
 
     private static final char[][] SCHEMATIC;
 
@@ -84,7 +84,9 @@ public class Day3 {
     private static int columns;
 
     static {
-        var lines = IOUtils.readAllLinesFrom(Day3.class.getResource("day3/schematic.txt"));
+
+        var lines = IOUtils.readAllLinesFrom(Day03.class.getResource("day03/schematic.txt"));
+
         SCHEMATIC = lines.stream().map(String::toCharArray)
             .toArray(char[][]::new);
     }

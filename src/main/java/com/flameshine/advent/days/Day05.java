@@ -141,7 +141,7 @@ import com.flameshine.advent.util.ParsingUtils;
  * Consider all of the initial seed numbers listed in the ranges on the first line of the almanac.
  * What is the lowest location number that corresponds to any of the initial seed numbers?
  */
-public class Day5 {
+public class Day05 {
 
     private static final List<MappingDescriptor> DESTINATION_DESCRIPTORS = List.of(
         new MappingDescriptor(Category.SEED, Category.SOIL),
@@ -159,7 +159,7 @@ public class Day5 {
         Map<Long, Long> seedRanges = new HashMap<>();
         List<AlmanacEntry> entries = new ArrayList<>();
 
-        try (var scanner = new Scanner(new File(Objects.requireNonNull(Day5.class.getResource("day5/almanac.txt")).getPath()))) {
+        try (var scanner = new Scanner(new File(Objects.requireNonNull(Day05.class.getResource("day05/almanac.txt")).getPath()))) {
 
             if (scanner.hasNextLine()) {
                 var seedsLine = scanner.nextLine();

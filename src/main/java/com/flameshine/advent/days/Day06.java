@@ -90,11 +90,11 @@ import com.flameshine.advent.util.StringUtils;
  *
  * How many ways can you beat the record in this one much longer race?
  */
-public class Day6 {
+public class Day06 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day6.class.getResource("day6/races.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day06.class.getResource("day06/races.txt"));
 
         // Part 1
 

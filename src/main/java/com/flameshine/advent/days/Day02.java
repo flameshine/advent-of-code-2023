@@ -74,15 +74,15 @@ import com.flameshine.advent.util.ParsingUtils;
  * For each game, find the minimum set of cubes that must have been present.
  * What is the sum of the power of these sets?
  */
-public class Day2 {
+public class Day02 {
 
     private static final Pattern GAME_ID_PATTERN = Pattern.compile("\\d+");
     private static final Pattern CUBE_CONFIGURATION_PATTERN = Pattern.compile("(\\d+) (\\w+)");
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day2.class.getResource("day2/games.txt"));
-        var games = lines.stream().map(Day2::parseGame).toList();
+        var lines = IOUtils.readAllLinesFrom(Day02.class.getResource("day02/games.txt"));
+        var games = lines.stream().map(Day02::parseGame).toList();
 
         // Part 1
 

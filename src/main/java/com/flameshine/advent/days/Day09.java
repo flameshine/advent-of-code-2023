@@ -116,11 +116,11 @@ import com.flameshine.advent.util.ParsingUtils;
  * Analyze your OASIS report again, this time extrapolating the previous value for each history.
  * What is the sum of these extrapolated values?
  */
-public class Day9 {
+public class Day09 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day9.class.getResource("day9/histories.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day09.class.getResource("day09/histories.txt"));
         var historySequences = buildHistorySequences(lines);
 
         // Part 1

@@ -98,7 +98,7 @@ import com.google.common.base.Preconditions;
  * Simultaneously start on every node that ends with A.
  * How many steps does it take before you're only on nodes that end with Z?
  */
-public class Day8 {
+public class Day08 {
 
     private static final Pattern ROUTE_PATTERN = Pattern.compile("(\\w+) = \\((\\w+), (\\w+)\\)");
 
@@ -107,7 +107,7 @@ public class Day8 {
         List<Direction> directions = new ArrayList<>();
         Map<String, Route> map = new HashMap<>();
 
-        try (var scanner = new Scanner(new File(Objects.requireNonNull(Day8.class.getResource("day8/instructions.txt")).getPath()))) {
+        try (var scanner = new Scanner(new File(Objects.requireNonNull(Day08.class.getResource("day08/instructions.txt")).getPath()))) {
 
             if (scanner.hasNextLine()) {
                 var directionsLine = scanner.nextLine();

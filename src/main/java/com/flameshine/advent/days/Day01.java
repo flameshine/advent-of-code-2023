@@ -22,7 +22,7 @@ import com.flameshine.advent.util.ParsingUtils;
  * It looks like some of the digits are actually spelled out with letters: one, two, three, four, five, six, seven, eight, and nine also count as valid "digits".
  * Equipped with this new information, you now need to find the real first and last digit on each line.
  */
-public class Day1 {
+public class Day01 {
 
     private static final Map<String, Integer> DIGITS = Map.of(
         "one", 1,
@@ -38,18 +38,18 @@ public class Day1 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day1.class.getResource("day1/calibration_values.txt"));
+        var lines = IOUtils.readAllLinesFrom(Day01.class.getResource("day01/calibration_values.txt"));
 
         // Part 1
 
         System.out.println(
-            lines.stream().map(Day1::extractCalibrationValuesWithNumericDigitsOnly).mapToInt(Integer::intValue).sum()
+            lines.stream().map(Day01::extractCalibrationValuesWithNumericDigitsOnly).mapToInt(Integer::intValue).sum()
         );
 
         // Part 2
 
         System.out.println(
-            lines.stream().map(Day1::extractCalibrationValuesWithAlphabeticDigits).mapToInt(Integer::intValue).sum()
+            lines.stream().map(Day01::extractCalibrationValuesWithAlphabeticDigits).mapToInt(Integer::intValue).sum()
         );
     }
 
