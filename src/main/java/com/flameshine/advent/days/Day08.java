@@ -3,8 +3,10 @@ package com.flameshine.advent.days;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UncheckedIOException;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -105,7 +107,7 @@ public class Day08 {
     public static void main(String... args) {
 
         List<Direction> directions = new ArrayList<>();
-        Map<String, Route> map = new HashMap<>();
+        Map<String, Route> nodes = new HashMap<>();
 
         try (var scanner = new Scanner(new File(Objects.requireNonNull(Day08.class.getResource("day08/instructions.txt")).getPath()))) {
 
@@ -124,7 +126,7 @@ public class Day08 {
                 var matcher = ROUTE_PATTERN.matcher(line);
                 Preconditions.checkState(matcher.find());
                 var route = new Route(matcher.group(2), matcher.group(3));
-                map.put(matcher.group(1), route);
+                nodes.put(matcher.group(1), route);
             }
 
         } catch (FileNotFoundException e) {
@@ -134,21 +136,23 @@ public class Day08 {
         // Part 1
 
         System.out.println(
-            calculateSteps(directions, map)
+            calculateSteps(directions, nodes)
         );
 
         // Part 2
 
-        // TODO: complete
+        System.out.println(
+            calculateStepsSimultaneously(directions, nodes)
+        );
     }
 
-    private static int calculateSteps(List<Direction> directions, Map<String, Route> map) {
+    private static int calculateSteps(List<Direction> directions, Map<String, Route> nodes) {
 
         var result = 0;
         var current = "AAA";
 
         while (!current.equals("ZZZ")) {
-            var route = map.get(current);
+            var route = nodes.get(current);
             for (var direction : directions) {
                 ++result;
                 current = direction == Direction.L ? route.left() : route.right();
@@ -156,6 +160,41 @@ public class Day08 {
         }
 
         return result;
+    }
+
+    private static BigInteger calculateStepsSimultaneously(List<Direction> directions, Map<String, Route> nodes) {
+
+        var nodesEndingWithA = nodes.keySet().stream()
+            .filter(node -> node.endsWith("A"))
+            .toList();
+
+        List<Integer> steps = new LinkedList<>();
+
+        for (var node : nodesEndingWithA) {
+            var numberOfSteps = calculateStepsForNode(node, directions, nodes);
+            steps.add(numberOfSteps);
+        }
+
+        return calculateLeastCommonMultiple(steps);
+    }
+
+    public static BigInteger calculateLeastCommonMultiple(List<Integer> steps) {
+        return steps.stream()
+            .map(BigInteger::valueOf)
+            .reduce(BigInteger.ONE, (a, b) -> a.multiply(b).divide(a.gcd(b)));
+    }
+
+    public static int calculateStepsForNode(String current, List<Direction> directions, Map<String, Route> nodes) {
+
+        var count = 1;
+
+        for (var directionPointer = 0;; directionPointer = (directionPointer + 1) % directions.size(), count++) {
+            var route = nodes.get(current);
+            current = directions.get(directionPointer) == Direction.L ? route.left() : route.right();
+            if (current.endsWith("Z")) {
+                return count;
+            }
+        }
     }
 
     private enum Direction {
