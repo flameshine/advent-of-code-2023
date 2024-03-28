@@ -81,7 +81,7 @@ public class Day02 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day02.class.getResource("day02/games.txt"));
+        var lines = IOUtils.readAllLines(Day02.class.getResource("day02/games.txt"));
         var games = lines.stream().map(Day02::parseGame).toList();
 
         // Part 1

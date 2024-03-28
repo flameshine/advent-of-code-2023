@@ -101,7 +101,7 @@ public class Day04 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day04.class.getResource("day04/cards.txt"));
+        var lines = IOUtils.readAllLines(Day04.class.getResource("day04/cards.txt"));
         var cards = lines.stream().map(Day04::parseCard).toList();
 
         // Part 1

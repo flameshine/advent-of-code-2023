@@ -1,7 +1,9 @@
 package com.flameshine.advent.days;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -228,23 +230,26 @@ public class Day10 {
     private static final List<String> LINES;
 
     static {
-        LINES = IOUtils.readAllLinesFrom(Day10.class.getResource("day10/sketch.txt"));
+        LINES = IOUtils.readAllLines(Day10.class.getResource("day10/sketch.txt"));
     }
 
     public static void main(String... args) {
 
         var start = findStart();
-        var fixedStart = normalize(start);
+        var normalizedSketch = normalize(start);
+        var pipe = findPipe(start, normalizedSketch);
 
         // Part 1
 
         System.out.println(
-            findPipe(start, fixedStart).size() / 2
+            pipe.size() / 2
         );
 
         // Part 2
 
-        // TODO: complete
+        System.out.println(
+            countEnclosedTiles(pipe, normalizedSketch)
+        );
     }
 
     private static Coordinate findStart() {
@@ -303,7 +308,7 @@ public class Day10 {
         };
     }
 
-    private static Set<Coordinate> findPipe(Coordinate start, List<String> lines) {
+    private static Set<Coordinate> findPipe(Coordinate start, List<String> sketch) {
 
         Set<Coordinate> seen = new HashSet<>();
         Queue<Coordinate> queue = new LinkedList<>();
@@ -313,13 +318,66 @@ public class Day10 {
 
         while (!queue.isEmpty()) {
             var top = queue.poll();
-            var pipe = pipeAt(top, lines);
-            var possible = findTargets(pipe, top).stream().filter(c -> !seen.contains(c) && isValid(pipe, top, c, lines)).toList();
+            var pipe = pipeAt(top, sketch);
+            var possible = findTargets(pipe, top).stream().filter(c -> !seen.contains(c) && isValid(pipe, top, c, sketch)).toList();
             seen.addAll(possible);
             queue.addAll(possible);
         }
 
         return seen;
+    }
+
+    private static int countEnclosedTiles(Set<Coordinate> pipe, List<String> sketch) {
+
+        Set<Coordinate> enclosed = new HashSet<>();
+
+        for (var i = 0; i < sketch.size(); i++) {
+
+            Set<Coordinate> found = new HashSet<>();
+
+            var line = sketch.get(i);
+            var isEnclosed = false;
+            var start = ' ';
+
+            for (var j = 0; j < line.length(); j++) {
+
+                var character = line.charAt(j);
+                var coordinate = new Coordinate(j, i);
+
+                if (pipe.contains(coordinate)) {
+
+                    if (start == ' ') {
+                        start = character;
+                    }
+
+                    if (character == '|') {
+                        isEnclosed = !isEnclosed;
+                        start = ' ';
+                    } else if (character == 'J' && start == 'F') {
+                        isEnclosed = !isEnclosed;
+                        start = ' ';
+                    } else if (character == 'J' && start == 'L') {
+                        start = ' ';
+                    } else if (character == '7' && start == 'L') {
+                        isEnclosed = !isEnclosed;
+                        start = ' ';
+                    } else if (character == '7' && start == 'F') {
+                        start = ' ';
+                    }
+
+                    if (!found.isEmpty()) {
+                        enclosed.addAll(found);
+                        found.clear();
+                    }
+
+                } else if (isEnclosed) {
+                    found.add(coordinate);
+                    start = ' ';
+                }
+            }
+        }
+
+        return enclosed.size();
     }
 
     private static List<Coordinate> findTargets(char c, Coordinate coordinate) {
@@ -336,9 +394,9 @@ public class Day10 {
         };
     }
 
-    private static boolean isValid(char c, Coordinate current, Coordinate next, List<String> lines) {
+    private static boolean isValid(char c, Coordinate current, Coordinate next, List<String> sketch) {
 
-        if (next.x() < 0 || lines.getFirst().length() <= next.x() || next.y() <0 || lines.size() <= next.y()) {
+        if (next.x() < 0 || sketch.getFirst().length() <= next.x() || next.y() <0 || sketch.size() <= next.y()) {
             return false;
         }
 
@@ -346,7 +404,7 @@ public class Day10 {
         var currentY = current.y();
         var nextX = next.x();
         var nextY = next.y();
-        var nextPipe = pipeAt(next, lines);
+        var nextPipe = pipeAt(next, sketch);
 
         return switch (c) {
             case 'S' -> true;

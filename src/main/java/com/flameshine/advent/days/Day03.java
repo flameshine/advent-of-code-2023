@@ -85,7 +85,7 @@ public class Day03 {
 
     static {
 
-        var lines = IOUtils.readAllLinesFrom(Day03.class.getResource("day03/schematic.txt"));
+        var lines = IOUtils.readAllLines(Day03.class.getResource("day03/schematic.txt"));
 
         SCHEMATIC = lines.stream().map(String::toCharArray)
             .toArray(char[][]::new);

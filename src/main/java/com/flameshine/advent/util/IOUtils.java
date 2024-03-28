@@ -14,7 +14,7 @@ public final class IOUtils {
 
     private IOUtils() {}
 
-    public static List<String> readAllLinesFrom(URL url) {
+    public static List<String> readAllLines(URL url) {
         Preconditions.checkState(url != null);
         try (var lines = Files.lines(Path.of(url.getPath()), StandardCharsets.UTF_8)) {
             return lines.toList();

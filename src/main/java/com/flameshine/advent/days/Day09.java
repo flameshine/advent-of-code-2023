@@ -120,7 +120,7 @@ public class Day09 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day09.class.getResource("day09/histories.txt"));
+        var lines = IOUtils.readAllLines(Day09.class.getResource("day09/histories.txt"));
         var historySequences = buildHistorySequences(lines);
 
         // Part 1

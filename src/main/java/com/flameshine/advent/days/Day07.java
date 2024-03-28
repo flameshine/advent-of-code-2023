@@ -108,7 +108,7 @@ public class Day07 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day07.class.getResource("day07/hands.txt"));
+        var lines = IOUtils.readAllLines(Day07.class.getResource("day07/hands.txt"));
 
         // Part 1
 

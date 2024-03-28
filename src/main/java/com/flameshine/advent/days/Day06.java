@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.flameshine.advent.util.IOUtils;
 import com.flameshine.advent.util.ParsingUtils;
-import com.flameshine.advent.util.StringUtils;
 
 /**
  * Day 6: Wait For It
@@ -94,7 +93,7 @@ public class Day06 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day06.class.getResource("day06/races.txt"));
+        var lines = IOUtils.readAllLines(Day06.class.getResource("day06/races.txt"));
 
         // Part 1
 
@@ -120,14 +119,14 @@ public class Day06 {
     private static List<Race> buildSeparatedRaces(List<String> lines) {
 
         List<Integer> times = new ArrayList<>();
-        var timeValues = StringUtils.removeTrailingWhitespaces(lines.get(0)).split("\\s");
+        var timeValues = removeTrailingWhitespaces(lines.get(0)).split("\\s");
         for (var i = 1; i < timeValues.length; i++) {
             var parsed = ParsingUtils.parseInt(timeValues[i]);
             times.add(parsed);
         }
 
         List<Integer> distances = new ArrayList<>();
-        var distanceValues = StringUtils.removeTrailingWhitespaces(lines.get(1)).split("\\s");
+        var distanceValues = removeTrailingWhitespaces(lines.get(1)).split("\\s");
         for (var i = 1; i < distanceValues.length; i++) {
             var parsed = ParsingUtils.parseInt(distanceValues[i]);
             distances.add(parsed);
@@ -146,13 +145,13 @@ public class Day06 {
     private static Race buildSingleRace(List<String> lines) {
 
         var timeBuilder = new StringBuilder();
-        var timeValues = StringUtils.removeTrailingWhitespaces(lines.get(0)).split("\\s");
+        var timeValues = removeTrailingWhitespaces(lines.get(0)).split("\\s");
         for (var i = 1; i < timeValues.length; i++) {
             timeBuilder.append(timeValues[i]);
         }
 
         var distanceBuilder = new StringBuilder();
-        var distanceValues = StringUtils.removeTrailingWhitespaces(lines.get(1)).split("\\s");
+        var distanceValues = removeTrailingWhitespaces(lines.get(1)).split("\\s");
         for (var i = 1; i < distanceValues.length; i++) {
             distanceBuilder.append(distanceValues[i]);
         }
@@ -176,6 +175,10 @@ public class Day06 {
         }
 
         return result;
+    }
+
+    private static String removeTrailingWhitespaces(String s) {
+        return s.replaceAll("\\s{2,}", " ").trim();
     }
 
     private record Race(

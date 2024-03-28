@@ -38,7 +38,7 @@ public class Day01 {
 
     public static void main(String... args) {
 
-        var lines = IOUtils.readAllLinesFrom(Day01.class.getResource("day01/calibration_values.txt"));
+        var lines = IOUtils.readAllLines(Day01.class.getResource("day01/calibration_values.txt"));
 
         // Part 1
 
